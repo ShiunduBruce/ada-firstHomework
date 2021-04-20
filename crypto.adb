@@ -43,11 +43,20 @@ package body crypto is
    -- encrypts String by shifting each Character
    --using multi_keys from k by iterating throw the keys over and over
    function encrypt_vigenere_with_numbers(x:String; k:keys ) return String is
-      encrypted_string: String := x;
+      encrypted_string: String(x'Range);
+      index : Positive;
+      len : Natural := k.multi_keys'Length;
    begin
-      for I in k.multi_keys'Range loop
-         encrypted_string := encrypt_string( encrypted_string, k.multi_keys(I) );
-       end loop;
+      for I in x'Range loop
+         if I rem len = 0 then
+            index := len;
+         else
+            index := I rem len;
+         end if;
+
+         encrypted_string(I) := shift_char(x(I), k.multi_keys(index));
+      end loop;
+
       return encrypted_string;
 
    end encrypt_vigenere_with_numbers;
@@ -82,13 +91,21 @@ package body crypto is
    -- decrypts a previously encrypted vigenere cipher
    -- of encrypt_vigenere_with_numbers)
    function decrypt_vigenere_with_numbers(x:String; k:keys ) return String is
-      decrypted_string: String := x;
-      key: Natural;
+      decrypted_string: String(x'Range);
+      index : Positive;
+      len : Natural := k.multi_keys'Length;
+      key : Natural;
    begin
-      for I in reverse k.multi_keys'Range loop
-         key :=26 - ( k.multi_keys(I) mod 26 );
-         decrypted_string := encrypt_string( decrypted_string, key );
+      for I in x'Range loop
+         if I rem len = 0 then
+            index := len;
+         else
+            index := I rem len;
+         end if;
+         key := 26 - (k.multi_keys(index) mod 26 );
+         decrypted_string(I) := shift_char(X(I), key);
       end loop;
+
       return decrypted_string;
    end decrypt_vigenere_with_numbers;
 
